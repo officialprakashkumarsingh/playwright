@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Playwright AI Automation Agent</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+            padding: 40px;
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 10px;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #4ade80;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .control-panel {
+            display: grid;
+            gap: 20px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(245, 87, 108, 0.4);
+        }
+
+        .task-input-container {
+            margin-bottom: 20px;
+        }
+
+        .task-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .task-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .results-container {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f9fafb;
+            border-radius: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .results-container h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .result-item {
+            padding: 10px;
+            margin-bottom: 10px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .result-success {
+            border-left-color: #4ade80;
+        }
+
+        .result-error {
+            border-left-color: #f87171;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .examples {
+            margin-top: 20px;
+            padding: 15px;
+            background: #fef3c7;
+            border-radius: 10px;
+            border: 1px solid #fbbf24;
+        }
+
+        .examples h4 {
+            color: #92400e;
+            margin-bottom: 10px;
+        }
+
+        .example-item {
+            padding: 8px;
+            margin: 5px 0;
+            background: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .example-item:hover {
+            background: #fef9c3;
+            transform: translateX(5px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 Playwright AI Automation Agent</h1>
+            <p>Powered by Gemini 2.0 Flash - Automate any web task with AI</p>
+        </div>
+
+        <div class="status-bar">
+            <div class="status-indicator">
+                <div class="status-dot"></div>
+                <span>Status: <strong id="status">Ready</strong></span>
+            </div>
+            <div>
+                Session: <strong id="sessionId">None</strong>
+            </div>
+        </div>
+
+        <div class="control-panel">
+            <div class="button-group">
+                <button class="btn-primary" onclick="createSession()">🚀 Create Session</button>
+                <button class="btn-secondary" onclick="checkSessions()">📊 Check Sessions</button>
+                <button class="btn-danger" onclick="closeSession()">🛑 Close Session</button>
+            </div>
+
+            <div class="task-input-container">
+                <textarea 
+                    id="taskInput" 
+                    class="task-input" 
+                    placeholder="Describe the automation task you want to perform...&#10;Example: Go to Google and search for 'Playwright automation'"
+                ></textarea>
+            </div>
+
+            <div class="button-group">
+                <button class="btn-primary" onclick="executeTask()">▶️ Execute Task</button>
+                <button class="btn-secondary" onclick="analyzePage()">🔍 Analyze Page</button>
+            </div>
+
+            <div class="examples">
+                <h4>📝 Example Tasks (Click to use):</h4>
+                <div class="example-item" onclick="setExample('Go to Google and search for Playwright documentation')">
+                    🔍 Search Google for Playwright documentation
+                </div>
+                <div class="example-item" onclick="setExample('Navigate to github.com and search for trending repositories')">
+                    💻 Find trending GitHub repositories
+                </div>
+                <div class="example-item" onclick="setExample('Go to news.ycombinator.com and extract the top 5 headlines')">
+                    📰 Get top Hacker News headlines
+                </div>
+                <div class="example-item" onclick="setExample('Visit example.com and take a screenshot')">
+                    📸 Take a screenshot of a website
+                </div>
+            </div>
+
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Processing your request...</p>
+            </div>
+
+            <div class="results-container" id="results" style="display: none;">
+                <h3>📋 Results:</h3>
+                <div id="resultsContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentSessionId = null;
+
+        function showLoading() {
+            document.querySelector('.loading').classList.add('active');
+        }
+
+        function hideLoading() {
+            document.querySelector('.loading').classList.remove('active');
+        }
+
+        function updateStatus(status, sessionId = null) {
+            document.getElementById('status').textContent = status;
+            if (sessionId !== null) {
+                document.getElementById('sessionId').textContent = sessionId || 'None';
+                currentSessionId = sessionId;
+            }
+        }
+
+        function showResults(content, isError = false) {
+            const resultsContainer = document.getElementById('results');
+            const resultsContent = document.getElementById('resultsContent');
+            
+            resultsContainer.style.display = 'block';
+            resultsContent.innerHTML = content;
+        }
+
+        async function createSession() {
+            showLoading();
+            try {
+                const response = await fetch('/api/session/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    updateStatus('Session Active', data.sessionId);
+                    showResults(`✅ ${data.message}<br>Session ID: ${data.sessionId}`);
+                } else {
+                    showResults(`❌ Error: ${data.error}`, true);
+                }
+            } catch (error) {
+                showResults(`❌ Error: ${error.message}`, true);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function executeTask() {
+            const task = document.getElementById('taskInput').value.trim();
+            
+            if (!task) {
+                alert('Please enter a task description');
+                return;
+            }
+            
+            if (!currentSessionId) {
+                alert('Please create a session first');
+                return;
+            }
+            
+            showLoading();
+            updateStatus('Executing Task');
+            
+            try {
+                const response = await fetch('/api/task/execute', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sessionId: currentSessionId, task })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    let resultsHtml = `<h4>Task: ${data.task}</h4>`;
+                    data.results.forEach(result => {
+                        const statusClass = result.result.success ? 'result-success' : 'result-error';
+                        resultsHtml += `
+                            <div class="result-item ${statusClass}">
+                                <strong>${result.instruction}</strong><br>
+                                ${result.result.success ? '✅' : '❌'} 
+                                ${JSON.stringify(result.result, null, 2)}
+                            </div>
+                        `;
+                    });
+                    showResults(resultsHtml);
+                    updateStatus('Task Completed');
+                } else {
+                    showResults(`❌ Error: ${data.error}`, true);
+                    updateStatus('Error');
+                }
+            } catch (error) {
+                showResults(`❌ Error: ${error.message}`, true);
+                updateStatus('Error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function analyzePage() {
+            if (!currentSessionId) {
+                alert('Please create a session first');
+                return;
+            }
+            
+            showLoading();
+            updateStatus('Analyzing Page');
+            
+            try {
+                const response = await fetch('/api/page/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sessionId: currentSessionId })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    showResults(`<h4>Page Analysis:</h4><pre>${data.analysis}</pre>`);
+                    updateStatus('Analysis Complete');
+                } else {
+                    showResults(`❌ Error: ${data.error}`, true);
+                    updateStatus('Error');
+                }
+            } catch (error) {
+                showResults(`❌ Error: ${error.message}`, true);
+                updateStatus('Error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function closeSession() {
+            if (!currentSessionId) {
+                alert('No active session to close');
+                return;
+            }
+            
+            showLoading();
+            try {
+                const response = await fetch('/api/session/close', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sessionId: currentSessionId })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    updateStatus('Ready', null);
+                    showResults(`✅ ${data.message}`);
+                } else {
+                    showResults(`❌ Error: ${data.error}`, true);
+                }
+            } catch (error) {
+                showResults(`❌ Error: ${error.message}`, true);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function checkSessions() {
+            showLoading();
+            try {
+                const response = await fetch('/api/sessions');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const sessionsHtml = data.sessions.length > 0 
+                        ? `<h4>Active Sessions (${data.count}):</h4><ul>${data.sessions.map(s => `<li>${s}</li>`).join('')}</ul>`
+                        : '<h4>No active sessions</h4>';
+                    showResults(sessionsHtml);
+                } else {
+                    showResults(`❌ Error: ${data.error}`, true);
+                }
+            } catch (error) {
+                showResults(`❌ Error: ${error.message}`, true);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        function setExample(task) {
+            document.getElementById('taskInput').value = task;
+        }
+
+        // Check API health on load
+        window.addEventListener('load', async () => {
+            try {
+                const response = await fetch('/api/health');
+                const data = await response.json();
+                console.log('API Health:', data);
+            } catch (error) {
+                console.error('API Health Check Failed:', error);
+            }
+        });
+    </script>
+</body>
+</html>

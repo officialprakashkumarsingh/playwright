@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: playwright-automation-agent
+    runtime: node
+    repo: https://github.com/YOUR_USERNAME/YOUR_REPO # Update with your repo
+    buildCommand: npm install && npx playwright install-deps && npx playwright install
+    startCommand: npm start
+    envVars:
+      - key: GEMINI_API_KEY
+        value: AIzaSyBUiSSswKvLvEK7rydCCRPF50eIDI_KOGc
+      - key: PORT
+        value: 3000
+      - key: NODE_ENV
+        value: production
+    healthCheckPath: /api/health
+    autoDeploy: true
+    plan: free # You can upgrade to paid plans for better performance
